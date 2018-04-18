@@ -23,13 +23,16 @@ public class WXController {
                             @RequestParam(name="timestamp", defaultValue="")String timestamp,
                             @RequestParam(name="nonce", defaultValue="")String nonce,
                             @RequestParam(name="echostr", defaultValue="")String echostr){
+        
 		
 		if(StringUtils.isEmpty(signature) || StringUtils.isEmpty(timestamp) ||StringUtils.isEmpty(nonce)) 
-			return "无效的认证";
-       
-		String checktext = authentication(token, timestamp, nonce);
-		
-        if ( checktext != null && checktext.equals(signature.toUpperCase())) {
+			return "authentication is failed";
+        //排序
+        String sortString = sort(token, timestamp, nonce);
+        //加密
+        String myString = sha1(sortString);
+        //校验
+        if (myString != null && myString != "" && myString.equals(signature)) {
             System.out.println("签名校验通过");
             return echostr;
         } else {
@@ -37,30 +40,36 @@ public class WXController {
             return "";
         }
     }
- 
-    private String authentication(String token, String timestamp, String nonce) {
+	/**
+     * 排序方法
+     */
+    public String sort(String token, String timestamp, String nonce) {
         String[] strArray = {token, timestamp, nonce};
         Arrays.sort(strArray);
         String content = strArray[0].concat(strArray[1]).concat(strArray[2]);
-        
-        String checktext = null;
-   	 try {
-            MessageDigest md = MessageDigest.getInstance("SHA-1");
-            //对接后的字符串进行sha1加密
-            byte[] digest = md.digest(content.toString().getBytes());
-            checktext = byteToStr(digest);
-        } catch (NoSuchAlgorithmException e){
-            e.printStackTrace();
-        }
-   	   return checktext;
+        return content;
     }
 
     /**
-     * 将字节数组转换为十六进制字符串
-     * 
-     * @param byteArray
-     * @return
+     * 将字符串进行sha1加密
+     *
+     * @param str 需要加密的字符串
+     * @return 加密后的内容
      */
+    public String sha1(String str) {
+    	 String checktext = null;
+    	 try {
+             MessageDigest md = MessageDigest.getInstance("SHA-1");
+             //对接后的字符串进行sha1加密
+             byte[] digest = md.digest(str.toString().getBytes());
+             checktext = byteToStr(digest);
+         } catch (NoSuchAlgorithmException e){
+             e.printStackTrace();
+         }
+    	//将加密后的字符串与signature进行对比
+         return checktext;
+     }
+    
     private static String byteToStr(byte[] byteArrays){
         String str = "";
         for (int i = 0; i < byteArrays.length; i++) {
