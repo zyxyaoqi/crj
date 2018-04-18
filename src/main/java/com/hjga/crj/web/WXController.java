@@ -5,78 +5,82 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/wx/")
+@RequestMapping("/")
 public class WXController {
 
 	@Value("${wx.token}")
 	private String token;
 	
-	@RequestMapping(value = "/",method=RequestMethod.GET)
-    public String checkName(@RequestParam(name="signature")String signature,
-                            @RequestParam(name="timestamp")String timestamp,
-                            @RequestParam(name="nonce")String nonce,
-                            @RequestParam(name="echostr")String echostr){
-        System.out.println("-----------------------开始校验------------------------");
-        //排序
-        String sortString = sort(token, timestamp, nonce);
-        //加密
-        String myString = sha1(sortString);
-        //校验
-        if (myString != null && myString != "" && myString.equals(signature)) {
+	@RequestMapping(value = "/wx",method=RequestMethod.GET)
+    public String checkName(@RequestParam(name="signature", defaultValue="")String signature,
+                            @RequestParam(name="timestamp", defaultValue="")String timestamp,
+                            @RequestParam(name="nonce", defaultValue="")String nonce,
+                            @RequestParam(name="echostr", defaultValue="")String echostr){
+		
+		if(StringUtils.isEmpty(signature) || StringUtils.isEmpty(timestamp) ||StringUtils.isEmpty(nonce)) 
+			return "无效的认证";
+       
+		String checktext = authentication(token, timestamp, nonce);
+		
+        if ( checktext != null && checktext.equals(signature.toUpperCase())) {
             System.out.println("签名校验通过");
-            //如果检验成功原样返回echostr，微信服务器接收到此输出，才会确认检验完成。
             return echostr;
         } else {
             System.out.println("签名校验失败");
             return "";
         }
     }
-	/**
-     * 排序方法
-     */
-    public String sort(String token, String timestamp, String nonce) {
+ 
+    private String authentication(String token, String timestamp, String nonce) {
         String[] strArray = {token, timestamp, nonce};
         Arrays.sort(strArray);
-        StringBuilder sb = new StringBuilder();
-        for (String str : strArray) {
-            sb.append(str);
+        String content = strArray[0].concat(strArray[1]).concat(strArray[2]);
+        
+        String checktext = null;
+   	 try {
+            MessageDigest md = MessageDigest.getInstance("SHA-1");
+            //对接后的字符串进行sha1加密
+            byte[] digest = md.digest(content.toString().getBytes());
+            checktext = byteToStr(digest);
+        } catch (NoSuchAlgorithmException e){
+            e.printStackTrace();
         }
-
-        return sb.toString();
+   	   return checktext;
     }
 
     /**
-     * 将字符串进行sha1加密
-     *
-     * @param str 需要加密的字符串
-     * @return 加密后的内容
+     * 将字节数组转换为十六进制字符串
+     * 
+     * @param byteArray
+     * @return
      */
-    public String sha1(String str) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-1");
-            digest.update(str.getBytes());
-            byte messageDigest[] = digest.digest();
-            // Create Hex String
-            StringBuffer hexString = new StringBuffer();
-            // 字节数组转换为 十六进制 数
-            for (int i = 0; i < messageDigest.length; i++) {
-                String shaHex = Integer.toHexString(messageDigest[i] & 0xFF);
-                if (shaHex.length() < 2) {
-                    hexString.append(0);
-                }
-                hexString.append(shaHex);
-            }
-            return hexString.toString();
-
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+    private static String byteToStr(byte[] byteArrays){
+        String str = "";
+        for (int i = 0; i < byteArrays.length; i++) {
+            str += byteToHexStr(byteArrays[i]);
         }
-        return "";
+        return str;
     }
+    
+    /**
+     *  将字节转化为十六进制字符串
+     * @param myByte 字节
+     * @return 字符串
+     */
+    private static String byteToHexStr(byte myByte) {
+        char[] Digit = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+        char[] tampArr = new char[2];
+        tampArr[0] = Digit[(myByte >>> 4) & 0X0F];
+        tampArr[1] = Digit[myByte & 0X0F];
+        String str = new String(tampArr);
+        return str;
+    }
+
 }
