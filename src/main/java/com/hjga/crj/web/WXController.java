@@ -23,6 +23,7 @@ public class WXController {
                             @RequestParam(name="timestamp", defaultValue="")String timestamp,
                             @RequestParam(name="nonce", defaultValue="")String nonce,
                             @RequestParam(name="echostr", defaultValue="")String echostr){
+ 
 		
 		if(StringUtils.isEmpty(signature) || StringUtils.isEmpty(timestamp) ||StringUtils.isEmpty(nonce)) 
 			return "无效的认证";
@@ -30,6 +31,7 @@ public class WXController {
 		String checktext = authentication(token, timestamp, nonce);
 		
         if ( checktext != null && checktext.equals(signature.toUpperCase())) {
+
             System.out.println("签名校验通过");
             return echostr;
         } else {
@@ -53,6 +55,7 @@ public class WXController {
             e.printStackTrace();
         }
    	   return checktext;
+
     }
 
     /**
@@ -61,6 +64,7 @@ public class WXController {
      * @param byteArray
      * @return
      */
+
     private static String byteToStr(byte[] byteArrays){
         String str = "";
         for (int i = 0; i < byteArrays.length; i++) {
