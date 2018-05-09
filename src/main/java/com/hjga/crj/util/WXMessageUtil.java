@@ -2,6 +2,7 @@ package com.hjga.crj.util;
 
 import java.io.InputStream;
 import java.io.Writer;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,9 +13,10 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
-import com.hjga.crj.wxmodel.Article;
-import com.hjga.crj.wxmodel.NewsMessage;
-import com.hjga.crj.wxmodel.TextMessage;
+import com.hjga.crj.constant.WXMessageType;
+import com.hjga.crj.wxmodel.msg.Article;
+import com.hjga.crj.wxmodel.msg.NewsMessage;
+import com.hjga.crj.wxmodel.msg.TextMessage;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.core.util.QuickWriter;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
@@ -22,79 +24,45 @@ import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
 import com.thoughtworks.xstream.io.xml.XppDriver;
 
 public class WXMessageUtil {
+	
 	/**
-     * 返回消息类型：文本
-     */
-    public static final String RESP_MESSAGE_TYPE_TEXT = "text";
+	 * 生成返回类型为text的微信消息
+	 * @param fromUserName
+	 * @param toUserName
+	 * @param content
+	 * @return
+	 */
+	public static String createTextMessage(String fromUserName, String toUserName, String content) {
+		// 回复文本消息
+		TextMessage textMessage = new TextMessage();
+		textMessage.setToUserName(fromUserName);
+		textMessage.setFromUserName(toUserName);
+		textMessage.setCreateTime(new Date().getTime());
+		textMessage.setMsgType(WXMessageType.RESP_MESSAGE_TYPE_TEXT);
+		textMessage.setFuncFlag(0);
+		textMessage.setContent(content);
+		String respMessage = WXMessageUtil.textMessageToXml(textMessage);
+		return respMessage;
 
-    /**
-     * 返回消息类型：音乐
-     */
-    public static final String RESP_MESSAGE_TYPE_MUSIC = "music";
-
-    /**
-     * 返回消息类型：图文
-     */
-    public static final String RESP_MESSAGE_TYPE_NEWS = "news";
-
-    /**
-     * 请求消息类型：文本
-     */
-    public static final String REQ_MESSAGE_TYPE_TEXT = "text";
-
-    /**
-     * 请求消息类型：图片
-     */
-    public static final String REQ_MESSAGE_TYPE_IMAGE = "image";
-
-    /**
-     * 请求消息类型：链接
-     */
-    public static final String REQ_MESSAGE_TYPE_LINK = "link";
-
-    /**
-     * 请求消息类型：地理位置
-     */
-    public static final String REQ_MESSAGE_TYPE_LOCATION = "location";
-
-    /**
-     * 请求消息类型：音频
-     */
-    public static final String REQ_MESSAGE_TYPE_VOICE = "voice";
-
-    /**
-     * 请求消息类型：推送
-     */
-    public static final String REQ_MESSAGE_TYPE_EVENT = "event";
-
-    /**
-     * 事件类型：subscribe(订阅)and 未关注群体扫描二维码
-     */
-    public static final String EVENT_TYPE_SUBSCRIBE = "subscribe";
-
-    /**
-     * 事件类型：已关注群体扫描二维码
-     */
-    public static final String EVENT_TYPE_SCAN="SCAN";
-    /**
-     * 事件类型：unsubscribe(取消订阅)
-     */
-    public static final String EVENT_TYPE_UNSUBSCRIBE = "unsubscribe";
-
-    /**
-     * 事件类型：CLICK(自定义菜单点击事件)
-     */
-    public static final String EVENT_TYPE_CLICK = "CLICK";
-    /**
-     * 事件类型：VIEW(点击自定义菜单跳转链接时的事件)
-     */
-    public static final String EVENT_TYPE_VIEW = "VIEW";
-
-    /**
-     * 事件类型：transfer_customer_service(把消息推送给客服)
-     */
-    public static final String EVENT_TYPE_TRANSFER_CUSTOMER_SERVICE = "transfer_customer_service";
-
+	}
+	/**
+	 * 生成返回类型为news的微信消息
+	 * @param fromUserName
+	 * @param toUserName
+	 * @param articleList
+	 * @return
+	 */
+	public static String createNewsMessage(String fromUserName, String toUserName, List<Article> articleList) {
+		NewsMessage newsMessage = new NewsMessage();
+		newsMessage.setToUserName(fromUserName);
+		newsMessage.setFromUserName(toUserName);
+		newsMessage.setCreateTime(new Date().getTime());
+		newsMessage.setMsgType(WXMessageType.RESP_MESSAGE_TYPE_NEWS);
+		newsMessage.setFuncFlag(0);
+		newsMessage.setArticleCount(articleList.size());
+		newsMessage.setArticles(articleList);
+		return WXMessageUtil.newsMessageToXml(newsMessage);
+	}
 
     /**
      * 解析微信发来的请求（XML）

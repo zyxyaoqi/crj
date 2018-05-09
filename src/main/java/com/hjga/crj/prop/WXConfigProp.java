@@ -1,11 +1,11 @@
-package com.hjga.crj.web;
+package com.hjga.crj.prop;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
 @ConfigurationProperties(prefix = "wx")
-public class WXProperties {
+public class WXConfigProp {
 
 	private String token;
 	private String appid;

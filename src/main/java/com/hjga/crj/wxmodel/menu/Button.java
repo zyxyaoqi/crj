@@ -1,20 +1,20 @@
-package com.hjga.crj.wxmodel;
+package com.hjga.crj.wxmodel.menu;
 
 
-public class WXButton {
+public class Button {
 
 	private String name;
 	private String type;
-	private WXButton[] sub_button;
+	private Button[] sub_button;
 	
 	
-	public WXButton(String name, String type) {
+	public Button(String name, String type) {
 		super();
 		this.name = name;
 		this.type = type;
 	}
 	
-	public WXButton(String name, String type, WXButton[] sub_button) {
+	public Button(String name, String type, Button[] sub_button) {
 		super();
 		this.name = name;
 		this.type = type;
@@ -33,10 +33,10 @@ public class WXButton {
 	public void setType(String type) {
 		this.type = type;
 	}
-	public WXButton[] getSub_button() {
+	public Button[] getSub_button() {
 		return sub_button;
 	}
-	public void setSub_button(WXButton[] sub_button) {
+	public void setSub_button(Button[] sub_button) {
 		this.sub_button = sub_button;
 	}
 	

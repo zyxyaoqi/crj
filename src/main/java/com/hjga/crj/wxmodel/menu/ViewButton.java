@@ -1,6 +1,6 @@
-package com.hjga.crj.wxmodel;
+package com.hjga.crj.wxmodel.menu;
 
-public class WXViewButton extends WXButton {
+public class ViewButton extends Button {
 	private String url;
 
 	public String getUrl() {
@@ -11,12 +11,12 @@ public class WXViewButton extends WXButton {
 		this.url = url;
 	}
 
-	public WXViewButton(String name, String type, String url, WXButton[] sub_button) {
+	public ViewButton(String name, String type, String url, Button[] sub_button) {
 		super(name, type,sub_button);
 		this.url = url;
 	}
 	
-	public WXViewButton(String name, String type, String url) {
+	public ViewButton(String name, String type, String url) {
 		super(name, type);
 		this.url = url;
 	}

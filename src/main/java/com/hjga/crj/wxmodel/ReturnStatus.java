@@ -1,6 +1,6 @@
 package com.hjga.crj.wxmodel;
 
-public class WXMenuReturnStatus {
+public class ReturnStatus {
 
 	private int errcode;
 	private String errmsg;

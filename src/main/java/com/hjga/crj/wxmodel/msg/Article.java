@@ -1,4 +1,4 @@
-package com.hjga.crj.wxmodel;
+package com.hjga.crj.wxmodel.msg;
 
 public class Article {
 	// 图文消息名称
